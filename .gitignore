@@ -1,3 +1,4 @@
 node_modules
 src/UseCases/@template
 .env
+dist/
