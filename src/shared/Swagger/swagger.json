@@ -1,0 +1,1070 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API TEMPLATE",
+    "description": "Está api tem objetivo de informar como utilizar este servidor.",
+    "version": "1.0.0",
+    "contact": {
+      "email": ""
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3333",
+      "description": "API LOCAL"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "summary": "Login",
+        "tags": [
+          "Login/Session"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": " "
+              },
+              "examples": {
+                "Login": {
+                  "value": {
+                    "email": "root_dev_rm@hotmail.com",
+                    "password": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Email/Senha incorreto"
+          }
+        }
+      }
+    },
+    "/account": {
+      "post": {
+        "summary": "Cria uma conta",
+        "tags": [
+          "Login/Session"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": " "
+              },
+              "examples": {
+                "Login": {
+                  "description": "role pode ser ADMIN ou USER",
+                  "value": {
+                    "name": "Nome do cliente",
+                    "email": "root_dev_rm@hotmail.com",
+                    "password": "123456",
+                    "role": "ADMIN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "Usuário criado": {
+                    "value": {
+                      "message": "Usuário criado !"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "já existe um usuário com esse email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "usuário já existe": {
+                    "value": {
+                      "message": "Usuário com este email já existe"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/sessions": {
+      "post": {
+        "summary": "Sessão do usuário",
+        "tags": [
+          "Login/Session"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Token não enviado, faça seu login novamente"
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/forgotPassword": {
+      "post": {
+        "summary": "Recuperar senha do usuário",
+        "description": "Neste rota será enviado o email do usuário para criar uma validação para ele poder alterar a senha",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": ""
+              },
+              "examples": {
+                "Recuperar senha": {
+                  "value": {
+                    "email": "root_dev_rm@hotmail.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Não existe usuário com este email !"
+          },
+          "200": {
+            "description": "Foi enviado um email para você recuperar sua senha !"
+          }
+        }
+      }
+    },
+    "/validateForgotPassword/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "id para validar se o link é valido"
+        }
+      ],
+      "post": {
+        "summary": "Verifica se id para a recuperação de senha é válido",
+        "description": "Se retornar falso nem deixe o usuário enviar a solicitação de senha",
+        "tags": [
+          "User"
+        ],
+        "responses": {
+          "200": {
+            "description": "link valido ou invalido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "Link Válido": {
+                    "value": {
+                      "isValid": true,
+                      "message": "Link Válido !"
+                    }
+                  },
+                  "Link Inválido": {
+                    "value": {
+                      "isValid": false,
+                      "message": "Link Inválido !"
+                    }
+                  },
+                  "Link Expirado": {
+                    "value": {
+                      "isValid": false,
+                      "message": "Link Expirado !"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "id não foi enviado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "sem o id no path": {
+                    "value": {
+                      "message": "Enviar o id !"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/redefine-password": {
+      "parameters": [
+        {
+          "in": "query",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "id do link"
+        }
+      ],
+      "post": {
+        "summary": "Checa as informações passadas e altera a senha do usuário",
+        "description": "Está rota é responsável alterar a senha do usuário",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "A senha deve conter pelo menos 1 caractere em maiúsculo e um número",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": ""
+              },
+              "examples": {
+                "Alterar Senha": {
+                  "value": {
+                    "password": "Password1",
+                    "verifyPassword": "Password1"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "senha atualizada ou link expirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "senha atualizada": {
+                    "value": {
+                      "isValid": true,
+                      "message": "Senha alterada com sucesso !"
+                    }
+                  },
+                  "link Expirado": {
+                    "value": {
+                      "isValid": false,
+                      "message": "Link Expirado !"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "id do link não é válido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "link não existe": {
+                    "value": {
+                      "message": "Link não existe !"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domain/create": {
+      "post": {
+        "summary": "Cria um novo domínio",
+        "tags": [
+          "Domain"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": ""
+              },
+              "examples": {
+                "Criar Domínio": {
+                  "value": {
+                    "domain": "example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Domínio criado !",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": ""
+                },
+                "examples": {
+                  "Sucesso": {
+                    "value": {
+                      "message": "Domínio criado !"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domain/get": {
+      "get": {
+        "summary": "Obtém uma lista de domínios",
+        "tags": [
+          "Domain"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "description": "Número da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "description": "Tamanho da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filtro para busca (deve ser uma string, pode ser opcional)."
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de domínios retornada com sucesso!",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": "e95662d6-7ab0-4934-b278-b4ebfc9d63a4",
+                      "userId": "eeaaac70-4141-4eb7-98ce-af660fe4bcfd",
+                      "domain": "example.com",
+                      "status": "DISCONNECTED",
+                      "updatedAt": "2024-07-06T23:46:48.194Z",
+                      "createdAt": "2024-07-06T23:46:48.194Z"
+                    }
+                  ],
+                  "meta": {
+                    "page": 1,
+                    "pageSize": 10,
+                    "total": 1,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domain/update/{id}": {
+      "put": {
+        "summary": "Atualiza um domínio existente",
+        "tags": [
+          "Domain"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do domínio a ser atualizado"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "domain": {
+                    "type": "string",
+                    "description": "Novo nome do domínio",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "domain"
+                ]
+              },
+              "examples": {
+                "Atualizar Domínio": {
+                  "value": {
+                    "domain": "updatedexample.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Domínio atualizado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  }
+                },
+                "examples": {
+                  "Sucesso": {
+                    "value": {
+                      "message": "Domínio atualizado com sucesso!"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domain/delete/{id}": {
+      "delete": {
+        "summary": "Exclui um domínio existente",
+        "tags": [
+          "Domain"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do domínio a ser excluído"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domínio excluído com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/create": {
+      "post": {
+        "summary": "Cria um novo email",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Endereço de email",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              },
+              "examples": {
+                "Criar Email": {
+                  "value": {
+                    "email": "example@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email criado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  },
+                  "example": {
+                    "Sucesso": {
+                      "value": {
+                        "message": "Email criado com sucesso!"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/get": {
+      "get": {
+        "summary": "Obtém uma lista de emails",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "description": "Número da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "description": "Tamanho da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filtro para busca (deve ser uma string, pode ser opcional)."
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails retornada com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {},
+                "examples": {
+                  "Sucesso": {
+                    "value": {
+                      "data": [
+                        {
+                          "id": "db49ac9c-e223-418f-b68f-0926645a6ce9",
+                          "userId": "eeaaac70-4141-4eb7-98ce-af660fe4bcfd",
+                          "email": "example@example.com",
+                          "status": "DISCONNECTED",
+                          "updatedAt": "2024-07-06T23:51:05.328Z",
+                          "createdAt": "2024-07-06T23:51:05.328Z"
+                        }
+                      ],
+                      "meta": {
+                        "page": 1,
+                        "pageSize": 10,
+                        "total": 1,
+                        "totalPages": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/update/{id}": {
+      "put": {
+        "summary": "Atualiza um email existente",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do email a ser atualizado"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Novo endereço de email",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              },
+              "examples": {
+                "Atualizar Email": {
+                  "value": {
+                    "email": "updated@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email atualizado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  },
+                  "example": {
+                    "Sucesso": {
+                      "value": {
+                        "message": "Email atualizado com sucesso!"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/delete/{id}": {
+      "delete": {
+        "summary": "Exclui um email existente",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID do email a ser excluído"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email excluído com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Email excluído com sucesso!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/send-email": {
+      "post": {
+        "summary": "Envia um email",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "description": "Remetente do email no formato 'Seu Nome <email@dominio.com>'",
+                    "minLength": 1
+                  },
+                  "to": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Destinatário do email (deve ser um endereço de email válido)"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Assunto do email",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Corpo do email",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "to",
+                  "subject",
+                  "text"
+                ]
+              },
+              "examples": {
+                "Enviar Email": {
+                  "value": {
+                    "from": "Seu Nome <seuemail@dominio.com>",
+                    "to": "destinatario@dominio.com",
+                    "subject": "Assunto do Email",
+                    "text": "Corpo do email aqui."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email enviado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Email enviado com sucesso!"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/sended-emails": {
+      "get": {
+        "summary": "Obtém uma lista de emails enviados",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "description": "Número da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "description": "Tamanho da página (não pode ser igual ou menor que 0 e deve ser um número inteiro)."
+            },
+            "required": false
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "description": "Filtro para busca (deve ser uma string, pode ser opcional)."
+            },
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de emails enviados retornada com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "emails": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "Endereço de email enviado"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total de emails enviados"
+                    }
+                  }
+                },
+                "example": {
+                  "emails": [
+                    "example1@example.com",
+                    "example2@example.com"
+                  ],
+                  "total": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/email/send-emails": {
+      "post": {
+        "summary": "Envia emails para múltiplos destinatários",
+        "tags": [
+          "Email"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string",
+                    "description": "Remetente do email no formato 'Seu Nome <email@dominio.com>'",
+                    "minLength": 1
+                  },
+                  "to": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email",
+                      "description": "Destinatário do email (deve ser um endereço de email válido)"
+                    }
+                  },
+                  "subject": {
+                    "type": "string",
+                    "description": "Assunto do email",
+                    "minLength": 1
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "Corpo do email",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "to",
+                  "subject",
+                  "text"
+                ]
+              },
+              "examples": {
+                "Enviar Emails": {
+                  "value": {
+                    "from": "Seu Nome <seuemail@dominio.com>",
+                    "to": [
+                      "destinatario1@dominio.com",
+                      "destinatario2@dominio.com"
+                    ],
+                    "subject": "Assunto do Email",
+                    "text": "Corpo do email aqui."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Emails enviados com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Mensagem de sucesso"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Emails enviados com sucesso!"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {},
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

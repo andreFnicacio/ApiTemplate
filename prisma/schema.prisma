@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id       String    @id
+  name     String
+  email    String    @unique
+  password String
+  role     UserRoles
+
+  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime        @default(now())
+  Domains       Domains[]
+  Emails        Emails[]
+  EmailsSendeds EmailsSendeds[]
+
+  @@map("user")
+}
+
+model RecoverPassword {
+  id           String   @id
+  userId       String
+  createdAt    DateTime @default(now())
+  expirationAt DateTime
+
+  @@map("recoverPassowrd")
+}
+
+model Domains {
+  id     String @id @unique @default(uuid())
+  userId String
+
+  domain String       @unique
+  status DomainStatus @default(DISCONNECTED)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id])
+  Dns  Dns[]
+
+  @@map("domain")
+}
+
+model Emails {
+  id     String @id @unique @default(uuid())
+  userId String
+
+  email  String
+  status EmailStatus @default(DISCONNECTED)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("email")
+}
+
+model EmailsSendeds {
+  id      String @id @unique @default(uuid())
+  userId  String
+  to      String
+  subject String
+  text    String
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  user Users @relation(fields: [userId], references: [id])
+
+  @@map("emails_sended")
+}
+
+model Dns {
+  id       String @id @unique @default(uuid())
+  domainId String
+
+  host  String
+  type  DnsType
+  value String
+
+  createdAt DateTime @default(now())
+  domain    Domains  @relation(fields: [domainId], references: [id], onDelete: Cascade)
+}
+
+enum UserRoles {
+  USER
+  ADMIN
+}
+
+enum DomainStatus {
+  CONNECTED
+  DISCONNECTED
+}
+
+enum EmailStatus {
+  CONNECTED
+  DISCONNECTED
+}
+
+enum DnsType {
+  CNAME
+  TXT
+}
